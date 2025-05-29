@@ -1,0 +1,18 @@
+{
+  "name": "dev-tinder-backend",
+  "version": "1.0.0",
+  "description": "social tinder for working professionals",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
+  "keywords": [
+    "node.js"
+  ],
+  "author": "Vishnu Vardhan",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
