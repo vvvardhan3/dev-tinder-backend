@@ -2,28 +2,20 @@ const express = require("express");
 
 const app = express();
 
-/**
- * Request Handlers
- * Order of the routes matters.
- * The first matching route will be executed.
- * If no route matches, the last handler will be executed.
- */
+app.use("/", (req,res, next) => {
+  next()
+})
 
-// this will only handle GET requests to the path "/user"
-app.get('/user/:userId', (req, res) => {
-  console.log(req.params);
-  res.send({firstname: "John", lastname: "Doe"});
-});
-
-// this will only handle POST requests to the path "/user"
-app.post('/user', (req, res) => {
-  res.send("User created successfully!");
-});
-
-// these will match all the HTTP methods API calls of the path "/server"
-app.use("/server", (req, res) => {
-  res.send("Hello from the server!");
-});
+app.use(
+  "/user",
+  (req, res, next) => {
+    // res.send("User-1 route is working!");
+    next();
+  },
+  (req, res) => {
+    res.send("User-2 route is working!");
+  }
+);
 
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
