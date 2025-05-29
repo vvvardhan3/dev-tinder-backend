@@ -10,7 +10,8 @@ const app = express();
  */
 
 // this will only handle GET requests to the path "/user"
-app.get('/user', (req, res) => {
+app.get('/user/:userId', (req, res) => {
+  console.log(req.params);
   res.send({firstname: "John", lastname: "Doe"});
 });
 
