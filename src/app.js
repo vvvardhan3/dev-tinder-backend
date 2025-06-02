@@ -1,20 +1,36 @@
 const express = require("express");
-
+const connectDB = require("./config/database");
+const User = require("./models/user");
 const app = express();
 
-// 1st-way error handling
-app.get("/getUserData", (req, res) => {
-  throw new Error("User data not found");
-  res.send("User data retrieved successfully");
+// apis
+app.post("/signup", async (req, res) => {
+  const userObject = {
+    firstName: "Vishnu Vardhan",
+    lastName: "Vardhan",
+    emailId: "vishnu.vardhan@example.com",
+    password: "password123",
+    age: 25,
+    gender: "Male",
+  };
+
+  // Creating a new user Instance and saving it to the database.
+  const user = new User(userObject);
+  try {
+    await user.save();
+    res.send("User Added Successfully!");
+  } catch (err) {
+    res.status(400).send("Error adding User: " + err.message);
+  }
 });
 
-// 2nd-way error handling
-app.use("/", (err, req, res, next) => {
-  res
-    .status(500)
-    .send("An error occurred while retrieving the user data( method-2).");
-});
-
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
+connectDB()
+  .then(() => {
+    console.log("MongoDB connected successfully");
+    app.listen(3000, () => {
+      console.log("Server is running on port 3000");
+    });
+  })
+  .catch((err) => {
+    console.error("MongoDB connection failed:", err);
+  });
