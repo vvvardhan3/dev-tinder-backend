@@ -60,6 +60,28 @@ app.patch("/user", async (req, res) => {
   const data = req.body;
 
   try {
+    /**
+     * API Level Validation
+     */
+
+    const ALLOWED_FIELDS = ["userId", "age", "about", "skills", "photoUrl"];
+    const isUpdateAllowed = Object.keys(data).every((key) =>
+      ALLOWED_FIELDS.includes(key)
+    );
+
+    if (!isUpdateAllowed) {
+      throw new Error(
+        "Invalid fields provided for update. Allowed fields are: " +
+          ALLOWED_FIELDS.join(", ")
+      );
+    }
+
+    // Validation to check if the user is sending more than 10 skills into the DB.
+    if(data?.skills.length > 10) {
+      throw new Error("You can only add up to 10 Skills!")
+    }
+
+
     await User.findByIdAndUpdate(userId, data, {
       runValidators: true,
     });
