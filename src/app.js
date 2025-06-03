@@ -5,12 +5,12 @@ const app = express();
 
 app.use(express.json()); // Middleware to parse JSON bodies
 
-// apis
+/**
+ * User Signup API Endpoint
+ * This endpoint allows users to sign up by providing their details.
+ */
 app.post("/signup", async (req, res) => {
-  console.log(req.body);
-
   userObject = req.body;
-
   // Creating a new user Instance and saving it to the database.
   const user = new User(userObject);
   try {
@@ -21,6 +21,54 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+/**
+ * Feed data API Endpoint
+ * Show all the Users in the database.
+ */
+
+app.get("/feed", async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.send(users);
+  } catch (err) {
+    res.status(400).send("Something went wrong: " + err.message);
+  }
+});
+
+/**
+ * User Delete API Endpoint
+ * This endpoint allows users to delete their account by providing their ID's
+ */
+
+app.delete("/user", async (req, res) => {
+  const userId = req.body.userId;
+  try {
+    await User.findByIdAndDelete(userId);
+    res.send("User deleted successfully!");
+  } catch (err) {
+    res.status(400).send("Something went wrong: " + err.message);
+  }
+});
+
+/**
+ * User Update API Endpoint
+ * This endpoint allows users to update their details by providing their ID's
+ */
+
+app.patch("/user", async (req, res) => {
+  const userId = req.body.userId;
+  const data = req.body;
+
+  try {
+    await User.findByIdAndUpdate(userId, data);
+    res.send("User updated successfully!");
+  } catch (err) {
+    res.status(400).send("Something went wrong: " + err.message);
+  }
+
+}); 
+
+// Connect to MongoDB and Start the server
 connectDB()
   .then(() => {
     console.log("MongoDB connected successfully");
