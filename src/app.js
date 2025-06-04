@@ -31,6 +31,33 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+
+/**
+ * User Login API Endpoint
+ * First, It will check the user by emailId and then compare the provided password with the hashed password in the database.
+ */
+
+app.post("/login", async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
+    // find the user by emailId
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Invalid email or password");
+    }
+    // Compare the provided password with the hashed password in the database
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (isPasswordValid) {
+      res.send("Login Successful!");
+    } else {
+      throw new Error("Invalid email or password");
+    }
+  } catch (err) {
+    res.status(400).send("Something went wrong: " + err.message);
+  }
+});
+
 /**
  * Feed data API Endpoint
  * Show all the Users in the database.
