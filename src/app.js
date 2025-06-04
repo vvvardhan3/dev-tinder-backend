@@ -55,8 +55,8 @@ app.delete("/user", async (req, res) => {
  * This endpoint allows users to update their details by providing their ID's
  */
 
-app.patch("/user", async (req, res) => {
-  const userId = req.body.userId;
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params.userId;
   const data = req.body;
 
   try {
@@ -64,7 +64,7 @@ app.patch("/user", async (req, res) => {
      * API Level Validation
      */
 
-    const ALLOWED_FIELDS = ["userId", "age", "about", "skills", "photoUrl"];
+    const ALLOWED_FIELDS = [ "age", "about", "skills", "photoUrl"];
     const isUpdateAllowed = Object.keys(data).every((key) =>
       ALLOWED_FIELDS.includes(key)
     );

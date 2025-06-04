@@ -37,6 +37,11 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+      validate(value) {
+        if(!validator.isStrongPassword(value)){
+          throw new Error("Enter a strong password: " + value)
+        }
+      }
     },
     age: {
       type: Number,
@@ -53,6 +58,11 @@ const userSchema = new mongoose.Schema(
     photoUrl: {
       type: String,
       default: "https://example.com/default-profile.png",
+      validate(value) {
+        if(!validator.isURL(value)){
+          throw new Error("Invalid photo URL" + value)
+        }
+      }
     },
     about: {
       type: String,
