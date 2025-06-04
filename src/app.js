@@ -1,4 +1,5 @@
 const express = require("express");
+const bcrypt = require("bcrypt");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const app = express();
@@ -10,9 +11,18 @@ app.use(express.json()); // Middleware to parse JSON bodies
  * This endpoint allows users to sign up by providing their details.
  */
 app.post("/signup", async (req, res) => {
-  userObject = req.body;
+  const { firstName, lastName, emailId, password } = req.body;
+  // Password Encryption using bcrypt
+  const passwordHashed = await bcrypt.hash(password, 10);
+  console.log("Password Hashed: ", passwordHashed);
+
   // Creating a new user Instance and saving it to the database.
-  const user = new User(userObject);
+  const user = new User({
+    firstName,
+    lastName,
+    emailId,
+    password: passwordHashed,
+  });
   try {
     await user.save();
     res.send("User Added Successfully!");
@@ -64,7 +74,7 @@ app.patch("/user/:userId", async (req, res) => {
      * API Level Validation
      */
 
-    const ALLOWED_FIELDS = [ "age", "about", "skills", "photoUrl"];
+    const ALLOWED_FIELDS = ["age", "about", "skills", "photoUrl"];
     const isUpdateAllowed = Object.keys(data).every((key) =>
       ALLOWED_FIELDS.includes(key)
     );
@@ -77,10 +87,9 @@ app.patch("/user/:userId", async (req, res) => {
     }
 
     // Validation to check if the user is sending more than 10 skills into the DB.
-    if(data?.skills.length > 10) {
-      throw new Error("You can only add up to 10 Skills!")
+    if (data?.skills.length > 10) {
+      throw new Error("You can only add up to 10 Skills!");
     }
-
 
     await User.findByIdAndUpdate(userId, data, {
       runValidators: true,
