@@ -18,7 +18,6 @@ app.post("/signup", async (req, res) => {
   const { firstName, lastName, emailId, password } = req.body;
   // Password Encryption using bcrypt
   const passwordHashed = await bcrypt.hash(password, 10);
-  console.log("Password Hashed: ", passwordHashed);
 
   // Creating a new user Instance and saving it to the database.
   const user = new User({
@@ -51,18 +50,21 @@ app.post("/login", async (req, res) => {
     const { emailId, password } = req.body;
     // find the user by emailId
     const user = await User.findOne({ emailId: emailId });
+
     if (!user) {
       throw new Error("Invalid email or password");
     }
     // Compare the provided password with the hashed password in the database
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await user.validatePassword(password);
 
     if (isPasswordValid) {
       // If the password is valid, create a JWT token.
-      const jwToken = await jwt.sign({ _id: user._id }, "VISHnu@1107");
+      const jwToken = await user.getJWT();
 
       // Set the JWT token in a cookie and send it to the user.
-      res.cookie("token", jwToken);
+      res.cookie("token", jwToken, {
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // cookie expires in 1 day
+      });
       res.send("Login Successful!");
     } else {
       throw new Error("Invalid email or password");
