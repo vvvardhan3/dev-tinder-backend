@@ -1,39 +1,44 @@
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
+
 /**
- * Admin and User Authentication Middlewares
+ * User Authentication Middlewares
  * This module exports two middleware funtions: adminAuth and userAuth.
  * These functions simulate authentication for admin and user roles.
  * They check a hardcoded token and either allow the request to proceed or deny access.
  */
 
-const adminAuth = (req, res, next) => {
-  console.log("Admin authentication started!");
-  // Simulate admin authentication logic
-  const token = "xyz";
-  const isAuthenticated = token === "xyz";
-    if (isAuthenticated) {
-        console.log("Admin authenticated successfully!");
-        next(); // Proceed to the next middleware or route handler
-    } else {
-        console.log("Admin authentication failed!");
-        res.status(403).send("Access denied: Admins only");
-    }
-};
+const userAuth = async (req, res, next) => {
+  /**
+   * Read the token from the request cookies.
+   * validate the token.
+   * if valid, find the user in the database.
+   */
 
+  try {
+    const { token } = req.cookies;
 
-const userAuth = (req, res, next) => {
-  console.log("user authentication started!");
-  // Simulate user authentication logic
-  const token = "xyz";
-  const isAuthenticated = token === "xyz";
-    if (isAuthenticated) {
-        console.log("User authenticated successfully!");
-        next(); // Proceed to the next middleware or route handler
-    } else {
-        console.log("User authentication failed!");
-        res.status(403).send("Access denied: Users only");
+    if (!token) {
+      throw new Error("Please login again.");
     }
+
+    const decodedObj = await jwt.verify(token, "VISHnu@1107");
+
+    const { _id } = decodedObj;
+
+    const user = await User.findById(_id);
+
+    if (!_id) {
+      throw new Error("User not found!");
+    }
+
+    req.user = user; // Attaching the user object to the request for further use in the route handlers
+    next();
+  } catch (err) {
+    res.status(401).send("Unauthorized: " + err.message);
+  }
 };
 
 module.exports = {
-  adminAuth, userAuth
+  userAuth,
 };

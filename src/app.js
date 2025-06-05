@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const app = express();
+const { userAuth } = require("./middlewares/auth");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 
@@ -75,32 +76,23 @@ app.post("/login", async (req, res) => {
  * User Profile API Endpoint
  */
 
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    // define cookie
-    const cookies = req.cookies;
-
-    // get the token from the cookie
-    const { token } = cookies;
-
-    if (!token) {
-      throw new Error("Please login again.")
-    }
-
-    // validate the token
-    const decodedMessage = jwt.verify(token, "VISHnu@1107");
-
-    const { _id } = decodedMessage;
-
-    // find the user by _id
-    const user = await User.findById(_id);
-
-    if (!user) {
-      throw new Error("User not found!");
-    }
-
+    const user = req.user; // The user object is attached to the request by the userAuth middleware
     // send the user data as response
     res.send(user);
+  } catch (err) {
+    res.status(400).send("Something went wrong: " + err.message);
+  }
+});
+
+/**
+ * Send Connect Request API Endpoint
+ */
+app.post("/sendconnectrequest", userAuth, async (req, res) => {
+  try {
+    const user = req.user;
+    res.send(user.firstName + " Sent Connection Request Successfully!");
   } catch (err) {
     res.status(400).send("Something went wrong: " + err.message);
   }
